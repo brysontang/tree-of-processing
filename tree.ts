@@ -41,7 +41,7 @@ export class Tree {
   async growTree() {
     console.log("Growing tree")
     console.log(this.unexplored)
-    const leaf = this.unexplored.pop();
+    const leaf = this.unexplored.shift();
 
     if (!leaf) {
       console.log('No leaves to explore');
