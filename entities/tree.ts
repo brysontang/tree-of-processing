@@ -63,22 +63,24 @@ export class Tree {
     console.log('Created children');
     console.log(leaf.children.length);
 
-    // Only add children to explore list if the depth is less than 4
-    if (leaf.depth < 4) {
-      if (process.env.METHOD === 'BFS') {
-        console.log("BFS")
-        this.unexplored.push(...leaf.children);
-      } else if (process.env.METHOD === 'DFS') {
-        console.log("DFS")
-        for (let i = 0; i < leaf.children.length; i++) {
-          this.addLeafToUnexplored(leaf.children[i]);
-        }
-      } else {
-        this.unexplored.push(...leaf.children);
-      }
+    this.printTree();
+
+    if (leaf.depth >= 4) {
+      return
     }
 
-    this.printTree();
+    // Only add children to explore list if the depth is less than 4
+    if (process.env.METHOD === 'BFS') {
+      console.log("BFS")
+      this.unexplored.push(...leaf.children);
+    } else if (process.env.METHOD === 'DFS') {
+      console.log("DFS")
+      for (let i = 0; i < leaf.children.length; i++) {
+        this.addLeafToUnexplored(leaf.children[i]);
+      }
+    } else {
+      this.unexplored.push(...leaf.children);
+    }
   }
 
   printTree() {
@@ -87,7 +89,7 @@ export class Tree {
   }
 
   printNode(node: Leaf, prefix: string) {
-    console.log(prefix + 'hash: ' + node.hash);
+    console.log(prefix + 'hash: ' + node.hash + ' score: ' + node.score);
     for (let i = 0; i < node.children.length; i++) {
       // Add a "-" for each level of depth
       this.printNode(node.children[i], prefix + '-');

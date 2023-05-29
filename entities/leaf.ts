@@ -23,7 +23,7 @@ export class Leaf {
 
     this.depth = depth;
 
-    this.hash = crypto.createHash('sha256').update(code).digest('hex');
+    this.hash = crypto.createHash('sha256').update(code).digest('hex').slice(0, 10);;
 
     this.children = [];
   }
