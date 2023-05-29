@@ -9,6 +9,7 @@ export class Leaf {
   prompt: string;
   code: string;
   hash: string;
+  method: string;
 
   depth: number;
 
@@ -16,10 +17,11 @@ export class Leaf {
 
   children: Leaf[];
 
-  constructor(prompt: string, code: string, depth: number) {
+  constructor(prompt: string, code: string, depth: number, method: string) {
     this.prompt = prompt;
     this.code = code;
     this.score = -1;
+    this.method = method;
 
     this.depth = depth;
 
@@ -59,7 +61,7 @@ export class Leaf {
           return;
         }
 
-        const leaf = new Leaf(this.prompt, newCode, this.depth + 1);
+        const leaf = new Leaf(this.prompt, newCode, this.depth + 1, method);
         await drawP5(leaf);
 
         this.addChild(leaf);

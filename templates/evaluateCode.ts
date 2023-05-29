@@ -9,9 +9,8 @@ export const evaluateCodeTemplate = async (leaf: Leaf) => {
 
   const template = `Your task is to look at some p5.js code and evaulate it on a scale of 0-10 ONLY OUTPUT THE NUMBER DO NOT OUTPUT ANY JUSTIFICATION FOR WHY YOU GAVE THE NUMBER, JUST THE NUMBER.
   Please evaluate based on the following criteria:
-  - How unique is this code?
-  - How non-trivial is this code?
-  - How creative is this code?
+  - How complex will the output of the code be?
+  - How innovative is the code?
 
   Code:
   \`\`\`HTML

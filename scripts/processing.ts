@@ -27,8 +27,9 @@ export const drawP5 = async (leaf: Leaf) => {
   fs.mkdirSync(directory, { recursive: true });
 
   const canvas = await page.$('canvas');
+  const methodWithoutSpaces = leaf.method.replace(/\s/g, '');
   const screenshot = await canvas?.screenshot({
-    path: path.join(directory, `${leaf.hash}.png`),
+    path: path.join(directory, `${leaf.hash}_${leaf.score}_${methodWithoutSpaces}.png`),
   });
 
   await browser.close();

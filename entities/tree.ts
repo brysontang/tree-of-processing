@@ -9,7 +9,7 @@ export class Tree {
   unexplored: Leaf[];
 
   constructor() {
-    this.root = new Leaf('', '', -1);
+    this.root = new Leaf('', '', -1, '');
 
     this.unexplored = [];
   }
@@ -23,7 +23,7 @@ export class Tree {
 
     if (!score) {
       console.log('Failed to evaluate image');
-      return new Leaf('', '', -1);
+      return new Leaf('', '', -1, '');
     }
 
     console.log(`Score: ${score}`);
@@ -89,7 +89,7 @@ export class Tree {
   }
 
   printNode(node: Leaf, prefix: string) {
-    console.log(prefix + 'hash: ' + node.hash + ' score: ' + node.score);
+    console.log(prefix + 'hash: ' + node.hash + ' score: ' + node.score + " method: " + node.method);
     for (let i = 0; i < node.children.length; i++) {
       // Add a "-" for each level of depth
       this.printNode(node.children[i], prefix + '-');
