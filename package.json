@@ -1,0 +1,17 @@
+{
+  "scripts": {
+    "start": "clear && ts-node main.ts"
+  },
+  "devDependencies": {
+    "@types/p5": "^1.6.2",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.0.4"
+  },
+  "dependencies": {
+    "canvas": "^2.11.2",
+    "dotenv": "^16.0.3",
+    "langchain": "^0.0.84",
+    "p5": "^1.6.0",
+    "puppeteer": "^19.11.1"
+  }
+}
