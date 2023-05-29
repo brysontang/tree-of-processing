@@ -15,8 +15,11 @@ rl.question('Please Enter Prompt: ', async (prompt) => {
 
   await t.generateAndAddLeafToRoot(prompt);
 
-  await t.growTree();
-  await t.growTree();
+  let n = 2;
+  
+  for (var i = 0; i < n; i++) {
+    await t.growTree();
+  }
 
   rl.close();
 });

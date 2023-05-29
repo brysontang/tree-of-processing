@@ -8,3 +8,12 @@ export const extractCodeFromOutput = (output: string) => {
 
   return null;
 };
+
+export const possibleMethods = [
+  'adding a unique feature',
+  'adding a non-trivial feature',
+  'adding a creative feature',
+  'refactoring the code',
+  'adding recursion to the code',
+  'adding a loop to the code',
+];

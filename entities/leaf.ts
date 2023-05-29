@@ -3,21 +3,25 @@ import crypto from 'crypto';
 import { drawP5 } from '../scripts/processing';
 import { enhanceCodeTemplate } from '../templates/enchanceCode';
 import { eveluateImage, initializeModel } from '../scripts/llm_helpers';
-import { extractCodeFromOutput } from '../scripts/util';
+import { extractCodeFromOutput, possibleMethods } from '../scripts/util';
 
 export class Leaf {
   prompt: string;
   code: string;
   hash: string;
 
+  depth: number;
+
   score: number;
 
   children: Leaf[];
 
-  constructor(prompt: string, code: string) {
+  constructor(prompt: string, code: string, depth: number) {
     this.prompt = prompt;
     this.code = code;
     this.score = -1;
+
+    this.depth = depth;
 
     this.hash = crypto.createHash('sha256').update(code).digest('hex');
 
@@ -37,11 +41,8 @@ export class Leaf {
   }
 
   async createChildren() {
-    const methods = [
-      'adding a unique feature',
-      'adding a non-trivial feature',
-      'adding a creative feature',
-    ];
+    // Randomly select 3 methods
+    const methods = possibleMethods.sort(() => 0.5 - Math.random()).slice(0, 3);
 
     const leaves: Leaf[] = [];
     await Promise.all(methods.map(async (method) => {
@@ -57,7 +58,7 @@ export class Leaf {
         return;
       }
 
-      const leaf = new Leaf(this.prompt, newCode);
+      const leaf = new Leaf(this.prompt, newCode, this.depth + 1);
       await drawP5(leaf);
 
       this.addChild(leaf);

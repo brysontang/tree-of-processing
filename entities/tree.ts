@@ -9,7 +9,7 @@ export class Tree {
   unexplored: Leaf[];
 
   constructor() {
-    this.root = new Leaf('', '');
+    this.root = new Leaf('', '', -1);
 
     this.unexplored = [];
   }
@@ -23,7 +23,7 @@ export class Tree {
 
     if (!score) {
       console.log('Failed to evaluate image');
-      return new Leaf('', '');
+      return new Leaf('', '', -1);
     }
 
     console.log(`Score: ${score}`);
@@ -50,7 +50,11 @@ export class Tree {
     await leaf.createChildren();
     console.log('Created children')
     console.log(leaf.children.length)
-    this.unexplored.push(...leaf.children);
+
+    // Only add children to explore list if the depth is less than 4
+    if (leaf.depth < 4) {
+      this.unexplored.push(...leaf.children);
+    }
 
     this.printTree();
   }

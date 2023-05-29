@@ -29,16 +29,16 @@ export const generateAndExtractP5Code = async (
   const out = await model.call(text, undefined, []);
 
   if (!out) {
-    return new Leaf('', '');
+    return new Leaf('', '', -1);
   }
 
   const extractedCode = extractCodeFromOutput(out);
 
   if (extractedCode) {
-    return new Leaf(userInput, extractedCode);
+    return new Leaf(userInput, extractedCode, 0);
   }
 
-  return new Leaf('', '');
+  return new Leaf('', '', -1);
 };
 
 export const eveluateImage = async (model: any, leaf: Leaf) => {
