@@ -1,3 +1,4 @@
+import fs from 'fs';
 import * as readline from 'readline';
 import * as dotenv from 'dotenv';
 
@@ -20,6 +21,11 @@ rl.question('Please Enter Prompt: ', async (prompt) => {
   for (var i = 0; i < n; i++) {
     await t.growTree();
   }
+
+  fs.writeFile('output/tree.json', JSON.stringify(t, null, 2), (err) => {
+    if (err) throw err;
+    console.log('The file has been saved!');
+  });
 
   rl.close();
 });
