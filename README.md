@@ -5,6 +5,10 @@ You must create a .env file in the root of the project with the value
 
 `OPENAI_API_KEY="<OpenAI API Key>"`
 
+If you would like to do a DFS add this to the .env
+
+`METHOD="DFS"`
+
 To run, cd to project root and run:
 
 `npm install`

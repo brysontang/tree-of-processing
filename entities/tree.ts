@@ -38,8 +38,20 @@ export class Tree {
     this.unexplored.push(leaf);
   }
 
+  addLeafToUnexplored(leaf: Leaf) {
+    for (let i = 0; i < this.unexplored.length; i++) {
+      let ux = this.unexplored[i];
+      if (ux.score < leaf.score) {
+        this.unexplored.splice(i, 0, leaf);
+        return;
+      }
+    }
+
+    this.unexplored.push(leaf);
+  }
+
   async growTree() {
-    console.log("Growing tree")
+    console.log('Growing tree');
     const leaf = this.unexplored.shift();
 
     if (!leaf) {
@@ -48,12 +60,22 @@ export class Tree {
     }
 
     await leaf.createChildren();
-    console.log('Created children')
-    console.log(leaf.children.length)
+    console.log('Created children');
+    console.log(leaf.children.length);
 
     // Only add children to explore list if the depth is less than 4
     if (leaf.depth < 4) {
-      this.unexplored.push(...leaf.children);
+      if (process.env.METHOD === 'BFS') {
+        console.log("BFS")
+        this.unexplored.push(...leaf.children);
+      } else if (process.env.METHOD === 'DFS') {
+        console.log("DFS")
+        for (let i = 0; i < leaf.children.length; i++) {
+          this.addLeafToUnexplored(leaf.children[i]);
+        }
+      } else {
+        this.unexplored.push(...leaf.children);
+      }
     }
 
     this.printTree();

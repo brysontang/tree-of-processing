@@ -45,39 +45,41 @@ export class Leaf {
     const methods = possibleMethods.sort(() => 0.5 - Math.random()).slice(0, 3);
 
     const leaves: Leaf[] = [];
-    await Promise.all(methods.map(async (method) => {
-      const newCodePrompt = await enhanceCodeTemplate(this, method);
+    await Promise.all(
+      methods.map(async (method) => {
+        const newCodePrompt = await enhanceCodeTemplate(this, method);
 
-      const model = initializeModel('gpt-3.5-turbo');
-      const newCodeText = await model.call(newCodePrompt, undefined, []);
+        const model = initializeModel('gpt-3.5-turbo');
+        const newCodeText = await model.call(newCodePrompt, undefined, []);
 
-      const newCode = extractCodeFromOutput(newCodeText);
+        const newCode = extractCodeFromOutput(newCodeText);
 
-      if (!newCode) {
-        console.log('Failed to generate new code');
-        return;
-      }
+        if (!newCode) {
+          console.log('Failed to generate new code');
+          return;
+        }
 
-      const leaf = new Leaf(this.prompt, newCode, this.depth + 1);
-      await drawP5(leaf);
+        const leaf = new Leaf(this.prompt, newCode, this.depth + 1);
+        await drawP5(leaf);
 
-      this.addChild(leaf);
+        this.addChild(leaf);
 
-      const score = await eveluateImage(model, leaf);
+        const score = await eveluateImage(model, leaf);
 
-      if (!score) {
-        console.log('Failed to evaluate image');
-        return;
-      }
+        if (!score) {
+          console.log('Failed to evaluate image');
+          return;
+        }
 
-      console.log(`Score: ${score}`);
-      leaf.setScore(parseInt(score, 10));
+        console.log(`Score: ${score}`);
+        leaf.setScore(parseInt(score, 10));
 
-      leaves.push(leaf);
-    }));
+        leaves.push(leaf);
+      })
+    );
 
-    console.log("----Leaves----")
-    console.log(leaves.length)
+    console.log('----Leaves----');
+    console.log(leaves.length);
 
     return leaves;
   }
