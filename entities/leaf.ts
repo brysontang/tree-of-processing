@@ -1,9 +1,9 @@
 import crypto from 'crypto';
 
-import { drawP5 } from './processing';
-import { enhanceCodeTemplate } from './templates';
-import { eveluateImage, initializeModel } from './llm_helpers';
-import { extractCodeFromOutput } from './util';
+import { drawP5 } from '../scripts/processing';
+import { enhanceCodeTemplate } from '../templates/enchanceCode';
+import { eveluateImage, initializeModel } from '../scripts/llm_helpers';
+import { extractCodeFromOutput } from '../scripts/util';
 
 export class Leaf {
   prompt: string;

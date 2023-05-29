@@ -1,7 +1,7 @@
 import * as readline from 'readline';
 import * as dotenv from 'dotenv';
 
-import { Tree } from './tree';
+import { Tree } from './entities/tree';
 
 dotenv.config();
 

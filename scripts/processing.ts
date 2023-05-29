@@ -2,7 +2,7 @@ import puppeteer from 'puppeteer';
 import fs from 'fs';
 import path from 'path';
 
-import { Leaf } from './leaf';
+import { Leaf } from '../entities/leaf';
 
 import {
   initializeModel,

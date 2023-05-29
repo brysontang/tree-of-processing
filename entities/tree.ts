@@ -1,5 +1,5 @@
-import { drawP5, generateP5 } from './processing';
-import { eveluateImage, initializeModel } from './llm_helpers';
+import { drawP5, generateP5 } from '../scripts/processing';
+import { eveluateImage, initializeModel } from '../scripts/llm_helpers';
 
 import { Leaf } from './leaf';
 
@@ -40,7 +40,6 @@ export class Tree {
 
   async growTree() {
     console.log("Growing tree")
-    console.log(this.unexplored)
     const leaf = this.unexplored.shift();
 
     if (!leaf) {

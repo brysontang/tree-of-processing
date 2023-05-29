@@ -1,9 +1,10 @@
 import { OpenAI } from 'langchain/llms/openai';
 
-import { generateImageTemplate, evaluateCodeTemplate } from './templates';
+import { generateImageTemplate } from '../templates/generateImage';
+import { evaluateCodeTemplate } from '../templates/evaluateCode';
 import { extractCodeFromOutput } from './util';
 
-import { Leaf } from './leaf';
+import { Leaf } from '../entities/leaf';
 
 export const DEFAULT_MODEL_NAME = 'gpt-3.5-turbo';
 
