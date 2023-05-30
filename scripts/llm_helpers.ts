@@ -29,6 +29,8 @@ export const generateAndExtractP5Code = async (
   const out = await model.call(text, undefined, []);
 
   if (!out) {
+    console.log('Failed to generate code')
+    console.log(out)
     return new Leaf('', '', -1, '');
   }
 

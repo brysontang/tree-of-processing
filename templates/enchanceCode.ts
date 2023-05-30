@@ -4,7 +4,7 @@ import { Leaf } from '../entities/leaf';
 
 export const enhanceCodeTemplate = async (leaf: Leaf, method: string) => {
     const template = `Your task is to enhance the following code by ${method}. ONLY RETURN THE NEW CODE:
-    Code:
+
     \`\`\`HTML
     {code}
     \`\`\`

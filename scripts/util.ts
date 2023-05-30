@@ -10,9 +10,7 @@ export const extractCodeFromOutput = (output: string) => {
 };
 
 export const possibleMethods = [
-  'adding a unique feature',
-  'adding a non-trivial feature',
-  'adding a creative feature',
+  'adding a unique idea to the script',
   'refactoring the code and expand the functionality',
   'adding recursion to the code',
   'reimagining the code',

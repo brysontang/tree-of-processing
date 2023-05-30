@@ -1,7 +1,8 @@
 import { PromptTemplate } from 'langchain/prompts';
 
 export const generateImageTemplate = async (userInput: string) => {
-    const template = `Your task is to take a user input and try to create a peice of art to represents that feeling. The user input will be surrounded by three backticks: \`\`\`{text}\`\`\`
+    const template = `Your task is to take a user input and try to create a peice of generative art to represents that feeling. 
+    The user input will be surrounded by three backticks: \`\`\`{text}\`\`\`
   To solve this problem you will:
   - First describe the item in poetic language
   - Then represent the poetry in geometric language

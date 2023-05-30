@@ -57,6 +57,7 @@ export class Leaf {
         const newCode = extractCodeFromOutput(newCodeText);
 
         if (!newCode) {
+          console.log(newCodeText)
           console.log('Failed to generate new code');
           return;
         }
