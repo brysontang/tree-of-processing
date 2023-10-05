@@ -3,7 +3,7 @@ import { PromptTemplate } from 'langchain/prompts';
 import { Leaf } from '../entities/leaf';
 
 export const enhanceCodeTemplate = async (leaf: Leaf, method: string) => {
-    const template = `Your task is to enhance the following code by ${method}. ONLY RETURN THE NEW CODE:
+    const template = `You are a senior generative artist and you are tasked will improving the interns code by ${method}. ONLY RETURN THE NEW CODE:
 
     \`\`\`HTML
     {code}

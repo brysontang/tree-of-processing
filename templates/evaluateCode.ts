@@ -1,9 +1,16 @@
 import { PromptTemplate } from 'langchain/prompts';
 
 import { Leaf } from '../entities/leaf';
-
+import path from 'path';
 
 export const evaluateCodeTemplate = async (leaf: Leaf) => {
+  const methodWithoutSpaces = leaf.method.replace(/\s/g, '');
+  const directory = './output';
+  const imagePath = path.join(
+    directory,
+    `${leaf.hash}_${leaf.score}_${methodWithoutSpaces}.png`
+  );
+
   // When the GPT-4 API allows image upload, we can use this function to evaluate the image
   // and return [0-10] until then we will give the code to GPT to evaluate.
 

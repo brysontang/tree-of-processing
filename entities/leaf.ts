@@ -15,19 +15,26 @@ export class Leaf {
 
   score: number;
 
-  children: Leaf[];
+  children: Leaf[] = [];
 
-  constructor(prompt: string, code: string, depth: number, method: string) {
+  constructor(prompt: string, code: string, depth: number, method: string, children: Leaf[] = [], score: number = -1) {
     this.prompt = prompt;
     this.code = code;
-    this.score = -1;
+    this.score = score;
     this.method = method;
 
     this.depth = depth;
 
     this.hash = crypto.createHash('sha256').update(code).digest('hex').slice(0, 10);;
 
-    this.children = [];
+    if (children.length === 0) {
+      this.children = []
+    } else {
+      for (let i = 0; i < children.length; i++) {
+        const child: Leaf = children[i];
+        this.children.push(new Leaf(child.prompt, child.code, child.depth, child.method, child.children, child.score));
+      }
+    }
   }
 
   addChild(leaf: Leaf) {
@@ -42,6 +49,20 @@ export class Leaf {
     this.hash = hash;
   }
 
+  getDeepestLeaf(): Leaf[] {
+    if (this.children.length === 0) {
+      return [this];
+    }
+
+    let deepestNodes: Leaf[] = [];
+    for (let i = 0; i < this.children.length; i++) {
+      const child = this.children[i];
+      
+      deepestNodes = deepestNodes.concat(child.getDeepestLeaf())
+    }
+    return deepestNodes;
+  }
+
   async createChildren() {
     // Randomly select 3 methods
     const methods = possibleMethods.sort(() => 0.5 - Math.random()).slice(0, 3);
@@ -51,7 +72,7 @@ export class Leaf {
       methods.map(async (method) => {
         const newCodePrompt = await enhanceCodeTemplate(this, method);
 
-        const model = initializeModel('gpt-3.5-turbo');
+        const model = initializeModel('gpt-4');
         const newCodeText = await model.call(newCodePrompt, undefined, []);
 
         const newCode = extractCodeFromOutput(newCodeText);

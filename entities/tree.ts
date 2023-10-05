@@ -8,17 +8,23 @@ export class Tree {
 
   unexplored: Leaf[];
 
-  constructor() {
-    this.root = new Leaf('', '', -1, '');
+  constructor(root = new Leaf('', '', -1, ''), unexplored = []) {
+    this.root = root;
 
-    this.unexplored = [];
+    if (unexplored.length === 0){
+      this.unexplored = [];
+    } else {
+      this.unexplored = this.root.getDeepestLeaf();
+
+      console.log(this.unexplored)
+    }
   }
 
   async generateLeaf(prompt: string): Promise<Leaf> {
     const leaf = await generateP5(prompt);
     await drawP5(leaf);
 
-    const model = initializeModel('gpt-3.5-turbo');
+    const model = initializeModel('gpt-4');
     const score = await eveluateImage(model, leaf);
 
     if (!score) {
