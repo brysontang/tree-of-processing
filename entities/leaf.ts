@@ -17,7 +17,14 @@ export class Leaf {
 
   children: Leaf[] = [];
 
-  constructor(prompt: string, code: string, depth: number, method: string, children: Leaf[] = [], score: number = -1) {
+  constructor(
+    prompt: string,
+    code: string,
+    depth: number,
+    method: string,
+    children: Leaf[] = [],
+    score: number = -1
+  ) {
     this.prompt = prompt;
     this.code = code;
     this.score = score;
@@ -25,14 +32,27 @@ export class Leaf {
 
     this.depth = depth;
 
-    this.hash = crypto.createHash('sha256').update(code).digest('hex').slice(0, 10);;
+    this.hash = crypto
+      .createHash('sha256')
+      .update(code)
+      .digest('hex')
+      .slice(0, 10);
 
     if (children.length === 0) {
-      this.children = []
+      this.children = [];
     } else {
       for (let i = 0; i < children.length; i++) {
         const child: Leaf = children[i];
-        this.children.push(new Leaf(child.prompt, child.code, child.depth, child.method, child.children, child.score));
+        this.children.push(
+          new Leaf(
+            child.prompt,
+            child.code,
+            child.depth,
+            child.method,
+            child.children,
+            child.score
+          )
+        );
       }
     }
   }
@@ -57,8 +77,8 @@ export class Leaf {
     let deepestNodes: Leaf[] = [];
     for (let i = 0; i < this.children.length; i++) {
       const child = this.children[i];
-      
-      deepestNodes = deepestNodes.concat(child.getDeepestLeaf())
+
+      deepestNodes = deepestNodes.concat(child.getDeepestLeaf());
     }
     return deepestNodes;
   }
@@ -72,13 +92,14 @@ export class Leaf {
       methods.map(async (method) => {
         const newCodePrompt = await enhanceCodeTemplate(this, method);
 
-        const model = initializeModel('gpt-4');
-        const newCodeText = await model.call(newCodePrompt, undefined, []);
+        const model4 = initializeModel('gpt-4');
+        const model3 = initializeModel('gpt-3.5');
+        const newCodeText = await model3.call(newCodePrompt, undefined, []);
 
         const newCode = extractCodeFromOutput(newCodeText);
 
         if (!newCode) {
-          console.log(newCodeText)
+          console.log(newCodeText);
           console.log('Failed to generate new code');
           return;
         }
@@ -88,7 +109,7 @@ export class Leaf {
 
         this.addChild(leaf);
 
-        const score = await eveluateImage(model, leaf);
+        const score = await eveluateImage(model4, leaf);
 
         if (!score) {
           console.log('Failed to evaluate image');
