@@ -10,7 +10,7 @@
   "dependencies": {
     "canvas": "^2.11.2",
     "dotenv": "^16.0.3",
-    "langchain": "^0.0.84",
+    "langchain": "^0.0.183",
     "p5": "^1.6.0",
     "puppeteer": "^19.11.1"
   }

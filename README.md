@@ -15,4 +15,6 @@ To run, cd to project root and run:
 
 `npm run start`
 
+`output/internet_2/tree.json`
+
 *You must have NodeJs >= v18.0.0 installed*

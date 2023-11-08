@@ -1,5 +1,5 @@
 import { drawP5, generateP5 } from '../scripts/processing';
-import { eveluateImage, initializeModel } from '../scripts/llm_helpers';
+import { eveluateImage, initializeChatModel } from '../scripts/llm_helpers';
 
 import { Leaf } from './leaf';
 
@@ -11,12 +11,12 @@ export class Tree {
   constructor(root = new Leaf('', '', -1, ''), unexplored = []) {
     this.root = root;
 
-    if (unexplored.length === 0){
+    if (unexplored.length === 0) {
       this.unexplored = [];
     } else {
       this.unexplored = this.root.getDeepestLeaf();
 
-      console.log(this.unexplored)
+      console.log(this.unexplored);
     }
   }
 
@@ -24,7 +24,7 @@ export class Tree {
     const leaf = await generateP5(prompt);
     await drawP5(leaf);
 
-    const model = initializeModel('gpt-4');
+    const model = initializeChatModel('gpt-4-vision-preview');
     const score = await eveluateImage(model, leaf);
 
     if (!score) {
@@ -72,15 +72,15 @@ export class Tree {
     this.printTree();
 
     if (leaf.depth >= 4) {
-      return
+      return;
     }
 
     // Only add children to explore list if the depth is less than 4
     if (process.env.METHOD === 'BFS') {
-      console.log("BFS")
+      console.log('BFS');
       this.unexplored.push(...leaf.children);
     } else if (process.env.METHOD === 'DFS') {
-      console.log("DFS")
+      console.log('DFS');
       for (let i = 0; i < leaf.children.length; i++) {
         this.addLeafToUnexplored(leaf.children[i]);
       }
@@ -95,7 +95,15 @@ export class Tree {
   }
 
   printNode(node: Leaf, prefix: string) {
-    console.log(prefix + 'hash: ' + node.hash + ' score: ' + node.score + " method: " + node.method);
+    console.log(
+      prefix +
+        'hash: ' +
+        node.hash +
+        ' score: ' +
+        node.score +
+        ' method: ' +
+        node.method
+    );
     for (let i = 0; i < node.children.length; i++) {
       // Add a "-" for each level of depth
       this.printNode(node.children[i], prefix + '-');

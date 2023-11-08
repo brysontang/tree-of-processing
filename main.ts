@@ -13,7 +13,6 @@ const rl = readline.createInterface({
 });
 
 rl.question('Please Enter Prompt: ', async (prompt) => {
-
   let t;
   if (prompt.indexOf('.json') > -1) {
     // Read the json file there is a tree object in it
@@ -21,29 +20,44 @@ rl.question('Please Enter Prompt: ', async (prompt) => {
 
     const treeObjec = JSON.parse(tree);
     console.log(treeObjec.root);
-    const root: Leaf = new Leaf(treeObjec.root.prompt, treeObjec.root.code, treeObjec.root.depth, treeObjec.root.method, treeObjec.root.children, treeObjec.root.score);
+    const root: Leaf = new Leaf(
+      treeObjec.root.prompt,
+      treeObjec.root.code,
+      treeObjec.root.depth,
+      treeObjec.root.method,
+      treeObjec.root.children,
+      treeObjec.root.score
+    );
     t = new Tree(root, treeObjec.unexplored);
-  } else if(prompt === '')  {
+  } else if (prompt === '') {
     // Read the json file there is a tree object in it
     const tree = await fs.readFileSync('output/tree.json', 'utf8');
 
     const treeObjec = JSON.parse(tree);
     console.log(treeObjec.root);
-    const root: Leaf = new Leaf(treeObjec.root.prompt, treeObjec.root.code, treeObjec.root.depth, treeObjec.root.method, treeObjec.root.children, treeObjec.root.score);
+    const root: Leaf = new Leaf(
+      treeObjec.root.prompt,
+      treeObjec.root.code,
+      treeObjec.root.depth,
+      treeObjec.root.method,
+      treeObjec.root.children,
+      treeObjec.root.score
+    );
     t = new Tree(root, treeObjec.unexplored);
-  }else {
+  } else {
     t = new Tree();
 
     await t.generateAndAddLeafToRoot(prompt);
   }
 
   let n = 6;
-  
+
   for (var i = 0; i < n; i++) {
     try {
       await t.growTree();
     } catch (e) {
-      console.log("ERROR")
+      console.log(e);
+      console.log('ERROR');
     }
   }
 

@@ -1,28 +1,16 @@
 import { PromptTemplate } from 'langchain/prompts';
 
 import { Leaf } from '../entities/leaf';
-import path from 'path';
 
 export const evaluateCodeTemplate = async (leaf: Leaf) => {
-  const methodWithoutSpaces = leaf.method.replace(/\s/g, '');
-  const directory = './output';
-  const imagePath = path.join(
-    directory,
-    `${leaf.hash}_${leaf.score}_${methodWithoutSpaces}.png`
-  );
-
   // When the GPT-4 API allows image upload, we can use this function to evaluate the image
   // and return [0-10] until then we will give the code to GPT to evaluate.
 
-  const template = `Your task is to look at some p5.js code and evaulate it on a scale of 0-10 ONLY OUTPUT THE NUMBER DO NOT OUTPUT ANY JUSTIFICATION FOR WHY YOU GAVE THE NUMBER, JUST THE NUMBER.
+  const template = `Your task is to look at the output of some p5.js code (an image) and evaulate it on a scale of 0-10 ONLY OUTPUT THE NUMBER DO NOT OUTPUT ANY JUSTIFICATION FOR WHY YOU GAVE THE NUMBER, JUST THE NUMBER.
   Please evaluate based on the following criteria:
-  - How complex will the output of the code be?
-  - How innovative is the code?
-
-  Code:
-  \`\`\`HTML
-  {code}
-  \`\`\`
+  - How complex is the output?
+  - How innovative is the output?
+  - How visually pleasing is the output?
 `;
 
   const prompt = new PromptTemplate({

@@ -2,7 +2,11 @@ import crypto from 'crypto';
 
 import { drawP5 } from '../scripts/processing';
 import { enhanceCodeTemplate } from '../templates/enchanceCode';
-import { eveluateImage, initializeModel } from '../scripts/llm_helpers';
+import {
+  eveluateImage,
+  initializeModel,
+  initializeChatModel,
+} from '../scripts/llm_helpers';
 import { extractCodeFromOutput, possibleMethods } from '../scripts/util';
 
 export class Leaf {
@@ -92,8 +96,8 @@ export class Leaf {
       methods.map(async (method) => {
         const newCodePrompt = await enhanceCodeTemplate(this, method);
 
-        const model4 = initializeModel('gpt-4');
-        const model3 = initializeModel('gpt-3.5');
+        const model4 = initializeChatModel('gpt-4-vision-preview');
+        const model3 = initializeModel('gpt-3.5-turbo');
         const newCodeText = await model3.call(newCodePrompt, undefined, []);
 
         const newCode = extractCodeFromOutput(newCodeText);
