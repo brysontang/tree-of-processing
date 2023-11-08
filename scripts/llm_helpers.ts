@@ -1,10 +1,7 @@
-import * as fs from 'node:fs/promises';
-import path from 'path';
-
 import { OpenAI } from 'langchain/llms/openai';
 import { ChatOpenAI } from 'langchain/chat_models/openai';
-import { HumanMessage } from 'langchain/schema';
 
+import { enhanceCodeTemplate } from '../templates/enchanceCode';
 import { generateImageTemplate } from '../templates/generateImage';
 import { evaluateCodeTemplate } from '../templates/evaluateCode';
 import { extractCodeFromOutput } from './util';
@@ -60,36 +57,30 @@ export const generateAndExtractP5Code = async (
   return new Leaf('', '', -1, '');
 };
 
+export const enhanceImage = async (model: any, method: string, leaf: Leaf) => {
+  const message = await enhanceCodeTemplate(leaf, method);
+
+  const out = await model.invoke([message]);
+
+  if (!out) {
+    return '';
+  }
+
+  const newCode = extractCodeFromOutput(out.content);
+
+  if (!newCode) {
+    console.log('Failed to generate new code');
+    console.log(out);
+    return '';
+  }
+
+  return newCode;
+};
+
 export const eveluateImage = async (model: any, leaf: Leaf) => {
   // When the GPT-4 API allows image upload, we can use this function to evaluate the image
   // and return [0-10] until then we will give the code to GPT to evaluate.
-
-  const methodWithoutSpaces = leaf.method.replace(/\s/g, '');
-  const directory = './output';
-  const imagePath = path.join(
-    directory,
-    `${leaf.hash}_${leaf.score}_${methodWithoutSpaces}.png`
-  );
-
-  const imageData = await fs.readFile(imagePath);
-
-  const text = await evaluateCodeTemplate(leaf);
-  console.log(imagePath);
-
-  const message = new HumanMessage({
-    content: [
-      {
-        type: 'text',
-        text,
-      },
-      {
-        type: 'image_url',
-        image_url: {
-          url: `data:image/jpeg;base64,${imageData.toString('base64')}`,
-        },
-      },
-    ],
-  });
+  const message = await evaluateCodeTemplate(leaf);
 
   const out = await model.invoke([message]);
 

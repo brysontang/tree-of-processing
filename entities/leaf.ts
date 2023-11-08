@@ -1,13 +1,12 @@
 import crypto from 'crypto';
 
 import { drawP5 } from '../scripts/processing';
-import { enhanceCodeTemplate } from '../templates/enchanceCode';
 import {
+  enhanceImage,
   eveluateImage,
-  initializeModel,
   initializeChatModel,
 } from '../scripts/llm_helpers';
-import { extractCodeFromOutput, possibleMethods } from '../scripts/util';
+import { possibleMethods } from '../scripts/util';
 
 export class Leaf {
   prompt: string;
@@ -38,7 +37,7 @@ export class Leaf {
 
     this.hash = crypto
       .createHash('sha256')
-      .update(code)
+      .update(code + new Date().getTime().toString())
       .digest('hex')
       .slice(0, 10);
 
@@ -94,19 +93,8 @@ export class Leaf {
     const leaves: Leaf[] = [];
     await Promise.all(
       methods.map(async (method) => {
-        const newCodePrompt = await enhanceCodeTemplate(this, method);
-
         const model4 = initializeChatModel('gpt-4-vision-preview');
-        const model3 = initializeModel('gpt-3.5-turbo');
-        const newCodeText = await model3.call(newCodePrompt, undefined, []);
-
-        const newCode = extractCodeFromOutput(newCodeText);
-
-        if (!newCode) {
-          console.log(newCodeText);
-          console.log('Failed to generate new code');
-          return;
-        }
+        const newCode = await enhanceImage(model4, method, this);
 
         const leaf = new Leaf(this.prompt, newCode, this.depth + 1, method);
         await drawP5(leaf);
