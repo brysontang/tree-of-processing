@@ -14,8 +14,12 @@ Two models do the work, both through OpenAI-compatible endpoints:
 
 Model-written code is untrusted. Every sketch is vetted with the generative art gallery's checks
 (`tools/vet.mjs`, copied from `../generative_art`): a static scan, then a dry run in its sandbox (`js/sandbox.js`)
-with no network, which also takes the screenshot. A sketch that fails is kept in the tree with the reasons, and
+with no network, which also takes the screenshot. A sketch that fails gets one repair: the writer is shown exactly
+what went wrong, and its fix is vetted from scratch. One that still fails is kept in the tree with the reasons, and
 isn't grown further.
+
+The eyes lead with how bright the frame is and how much of it is empty. Told only to describe, they made
+near-black frames sound like rich constellations, and the writer scored and kept building on them.
 
 ## Running it
 
@@ -30,6 +34,7 @@ sketch and `tree.json`, saved after every round. Type the path of a `tree.json` 
 nothing to grow the latest one.
 
 Each leaf in `tree.json` has its `code`, `score`, `method`, what the eyes `seen`, the `problems` that got it
-turned down, and on the root, the writer's poetic and geometric `notes`.
+turned down, its `repair` if it had one (the code before, and what was wrong with it), and on the root, the
+writer's poetic and geometric `notes`.
 
 *You must have NodeJs >= v20 and Google Chrome installed*

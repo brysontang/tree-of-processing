@@ -113,8 +113,8 @@ export class Tree {
         node.score +
         ' method: ' +
         node.method +
-        (node.problems.length ? ' (turned down)' : '') +
-        (node.repair ? ' (repaired)' : '')
+        (node.repair ? (node.problems.length ? ' (repair failed)' : ' (repaired)') : '') +
+        (node.problems.length ? ' (turned down)' : '')
     );
     for (let i = 0; i < node.children.length; i++) {
       // Add a "-" for each level of depth
