@@ -1,12 +1,12 @@
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 
 import { drawP5 } from '../scripts/processing';
-import {
-  enhanceImage,
-  eveluateImage,
-  initializeChatModel,
-} from '../scripts/llm_helpers';
+import { enhanceImage, eveluateImage } from '../scripts/llm_helpers';
 import { possibleMethods } from '../scripts/util';
+
+// What a leaf keeps besides its code: its hash (so a saved tree still matches its screenshots), the 27B's notes
+// (the root's poetic and geometric descriptions), what the eyes saw it draw, and why vetting turned it down.
+type Extra = { hash?: string; notes?: string; seen?: string; problems?: string[] };
 
 export class Leaf {
   prompt: string;
@@ -18,6 +18,10 @@ export class Leaf {
 
   score: number;
 
+  notes: string;
+  seen: string;
+  problems: string[];
+
   children: Leaf[] = [];
 
   constructor(
@@ -26,7 +30,8 @@ export class Leaf {
     depth: number,
     method: string,
     children: Leaf[] = [],
-    score: number = -1
+    score: number = -1,
+    extra: Extra = {}
   ) {
     this.prompt = prompt;
     this.code = code;
@@ -35,29 +40,24 @@ export class Leaf {
 
     this.depth = depth;
 
-    this.hash = crypto
-      .createHash('sha256')
-      .update(code + new Date().getTime().toString())
-      .digest('hex')
-      .slice(0, 10);
+    this.hash =
+      extra.hash ??
+      crypto
+        .createHash('sha256')
+        .update(code + new Date().getTime().toString())
+        .digest('hex')
+        .slice(0, 10);
 
-    if (children.length === 0) {
-      this.children = [];
-    } else {
-      for (let i = 0; i < children.length; i++) {
-        const child: Leaf = children[i];
-        this.children.push(
-          new Leaf(
-            child.prompt,
-            child.code,
-            child.depth,
-            child.method,
-            child.children,
-            child.score
-          )
-        );
-      }
-    }
+    this.notes = extra.notes ?? '';
+    this.seen = extra.seen ?? '';
+    this.problems = extra.problems ?? [];
+
+    this.children = children.map((child) => Leaf.from(child));
+  }
+
+  /** A leaf, and its children, back from a saved tree.json. */
+  static from(saved: Leaf): Leaf {
+    return new Leaf(saved.prompt, saved.code, saved.depth, saved.method, saved.children, saved.score, saved);
   }
 
   addChild(leaf: Leaf) {
@@ -93,23 +93,24 @@ export class Leaf {
     const leaves: Leaf[] = [];
     await Promise.all(
       methods.map(async (method) => {
-        const model4 = initializeChatModel('gpt-4-vision-preview');
-        const newCode = await enhanceImage(model4, method, this);
+        const newCode = await enhanceImage(method, this);
+        if (!newCode) return;
 
         const leaf = new Leaf(this.prompt, newCode, this.depth + 1, method);
-        await drawP5(leaf);
-
         this.addChild(leaf);
 
-        const score = await eveluateImage(model4, leaf);
+        // A leaf that fails vetting keeps its score of -1 and isn't grown further.
+        if (!(await drawP5(leaf))) return;
 
-        if (!score) {
+        const score = await eveluateImage(leaf);
+
+        if (score === null) {
           console.log('Failed to evaluate image');
           return;
         }
 
         console.log(`Score: ${score}`);
-        leaf.setScore(parseInt(score, 10));
+        leaf.setScore(score);
 
         leaves.push(leaf);
       })

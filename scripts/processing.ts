@@ -1,48 +1,37 @@
-import puppeteer from 'puppeteer';
-import fs from 'fs';
-import path from 'path';
+import path from 'node:path';
 
+import { vet } from '../tools/vet.mjs';
 import { Leaf } from '../entities/leaf';
+import { generateAndExtractP5Code, look } from './llm_helpers';
 
-import {
-  initializeModel,
-  generateAndExtractP5Code,
-  DEFAULT_MODEL_NAME,
-} from './llm_helpers';
+// Where this run's screenshots and tree.json go. main.ts sets it.
+export const output = { dir: 'output' };
 
+export const imagePath = (leaf: Leaf) => path.join(output.dir, `${leaf.hash}_${leaf.method.replace(/\s/g, '')}.png`);
+
+type Issue = { line: number; reason: string; detail: string };
+
+// Vets the leaf's code the way the gallery does: a static scan, then a dry run in its sandbox, which saves the
+// screenshot. Code that fails the scan never runs. Then the eyes say what it drew. Returns whether it passed.
 export const drawP5 = async (leaf: Leaf) => {
-  console.log('Opening browser...');
-  const browser = await puppeteer.launch();
-  const page = await browser.newPage();
-
-  // Go to a blank page and run the p5.js code
-  await page.goto(`data:text/html,${leaf.code}`);
-
-  // Wait for the p5.js sketch to render
-  await page.waitForTimeout(2000);
-
-  console.log('Taking screenshot...');
-  // Capture the canvas as an image
-  const directory = './output';
-  fs.mkdirSync(directory, { recursive: true });
-
-  const canvas = await page.$('canvas');
-  const methodWithoutSpaces = leaf.method.replace(/\s/g, '');
-  const screenshot = await canvas?.screenshot({
-    path: path.join(directory, `${leaf.hash}_${methodWithoutSpaces}.png`),
-  });
-
-  await browser.close();
+  console.log('Vetting and drawing...');
+  const report = await vet(leaf.code, { screenshot: imagePath(leaf) });
+  if (!report.ok) {
+    leaf.problems = [
+      ...report.static.issues.map((i: Issue) => `line ${i.line}: ${i.reason} (${i.detail})`),
+      ...(report.run?.problems ?? []),
+    ];
+    console.log(`Turned down: ${leaf.problems.join('; ')}`);
+    return false;
+  }
+  leaf.seen = await look(imagePath(leaf));
+  console.log(`Seen: ${leaf.seen}`);
+  return true;
 };
 
-export const generateP5 = async (
-  userInput: string,
-  modelName: string = DEFAULT_MODEL_NAME
-): Promise<Leaf> => {
-  const model = initializeModel(modelName);
-
+export const generateP5 = async (userInput: string): Promise<Leaf> => {
   try {
-    return await generateAndExtractP5Code(model, userInput);
+    return await generateAndExtractP5Code(userInput);
   } catch (err) {
     throw new Error(`Failed to generate and extract code: ${err}`);
   }

@@ -1,17 +1,18 @@
 {
+  "type": "module",
   "scripts": {
-    "start": "clear && ts-node main.ts"
+    "start": "clear && tsx main.ts",
+    "typecheck": "tsc"
   },
   "devDependencies": {
-    "@types/p5": "^1.6.2",
-    "ts-node": "^10.9.1",
-    "typescript": "^5.0.4"
+    "@types/node": "^20.17.6",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
   },
   "dependencies": {
-    "canvas": "^2.11.2",
-    "dotenv": "^16.0.3",
-    "langchain": "^0.0.183",
-    "p5": "^1.6.0",
-    "puppeteer": "^19.11.1"
+    "acorn": "^8.19.0",
+    "acorn-walk": "^8.3.5",
+    "dotenv": "^16.4.5",
+    "puppeteer-core": "^23.11.1"
   }
 }

@@ -1,47 +1,56 @@
 import { drawP5, generateP5 } from '../scripts/processing';
-import { eveluateImage, initializeChatModel } from '../scripts/llm_helpers';
+import { eveluateImage } from '../scripts/llm_helpers';
 
 import { Leaf } from './leaf';
+
+// Leaves worth growing: ones that passed vetting and were scored.
+const growable = (leaf: Leaf) => leaf.score >= 0;
 
 export class Tree {
   root: Leaf;
 
   unexplored: Leaf[];
 
-  constructor(root = new Leaf('', '', -1, ''), unexplored = []) {
+  constructor(root = new Leaf('', '', -1, ''), unexplored: Leaf[] = []) {
     this.root = root;
 
     if (unexplored.length === 0) {
       this.unexplored = [];
     } else {
-      this.unexplored = this.root.getDeepestLeaf();
+      this.unexplored = this.root.getDeepestLeaf().filter(growable);
 
-      console.log(this.unexplored);
+      console.log(this.unexplored.map((leaf) => leaf.hash));
     }
   }
 
   async generateLeaf(prompt: string): Promise<Leaf> {
     const leaf = await generateP5(prompt);
-    await drawP5(leaf);
+    if (!leaf.code || !(await drawP5(leaf))) return leaf;
 
-    const model = initializeChatModel('gpt-4-vision-preview');
-    const score = await eveluateImage(model, leaf);
+    const score = await eveluateImage(leaf);
 
-    if (!score) {
+    if (score === null) {
       console.log('Failed to evaluate image');
-      return new Leaf('', '', -1, '');
+      return leaf;
     }
 
     console.log(`Score: ${score}`);
-    leaf.setScore(parseInt(score, 10));
+    leaf.setScore(score);
 
     return leaf;
   }
 
+  // A tree can only grow from a root that passes vetting, so the root gets three tries.
   async generateAndAddLeafToRoot(prompt: string) {
-    const leaf = await this.generateLeaf(prompt);
-    this.root = leaf;
-    this.unexplored.push(leaf);
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      const leaf = await this.generateLeaf(prompt);
+      this.root = leaf;
+      if (growable(leaf)) {
+        this.unexplored.push(leaf);
+        return;
+      }
+      console.log(`The root didn't make it (try ${attempt} of 3)`);
+    }
   }
 
   addLeafToUnexplored(leaf: Leaf) {
@@ -75,17 +84,18 @@ export class Tree {
       return;
     }
 
-    // Only add children to explore list if the depth is less than 4
+    // Only add children to explore list if the depth is less than 4, and only ones that passed vetting
+    const children = leaf.children.filter(growable);
     if (process.env.METHOD === 'BFS') {
       console.log('BFS');
-      this.unexplored.push(...leaf.children);
+      this.unexplored.push(...children);
     } else if (process.env.METHOD === 'DFS') {
       console.log('DFS');
-      for (let i = 0; i < leaf.children.length; i++) {
-        this.addLeafToUnexplored(leaf.children[i]);
+      for (let i = 0; i < children.length; i++) {
+        this.addLeafToUnexplored(children[i]);
       }
     } else {
-      this.unexplored.push(...leaf.children);
+      this.unexplored.push(...children);
     }
   }
 
@@ -102,7 +112,8 @@ export class Tree {
         ' score: ' +
         node.score +
         ' method: ' +
-        node.method
+        node.method +
+        (node.problems.length ? ' (turned down)' : '')
     );
     for (let i = 0; i < node.children.length; i++) {
       // Add a "-" for each level of depth

@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Vet harness</title>
+    <style>
+      html, body { margin: 0; height: 100%; background: #111; }
+      #stage { position: fixed; inset: 0; }
+    </style>
+  </head>
+  <body>
+    <!-- tools/vet.mjs dry-runs candidate sketches here, in the same sandbox the gallery uses. -->
+    <div id="stage"></div>
+    <script src="../js/sandbox.js"></script>
+    <script>
+      window.events = [];
+      window.run = (code, seed) => {
+        const t0 = performance.now();
+        window.handle = Sandbox.mount(document.getElementById('stage'), code, {
+          seed,
+          onEvent: (msg) => events.push({ ...msg, t: performance.now() - t0 }),
+        });
+      };
+    </script>
+  </body>
+</html>
