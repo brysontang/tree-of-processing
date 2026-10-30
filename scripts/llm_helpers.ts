@@ -7,6 +7,7 @@ import { enhanceCodeTemplate } from '../templates/enchanceCode';
 import { generateImageTemplate } from '../templates/generateImage';
 import { evaluateCodeTemplate } from '../templates/evaluateCode';
 import { describeImageTemplate } from '../templates/describeImage';
+import { repairCodeTemplate } from '../templates/repairCode';
 import { extractCodeFromOutput, notesFromOutput, scoreFromOutput } from './util';
 
 import { Leaf } from '../entities/leaf';
@@ -107,6 +108,9 @@ export const enhanceImage = async (method: string, leaf: Leaf) => {
   }
   return newCode;
 };
+
+/** The leaf's code with its problems fixed, or '' if the reply has no code. */
+export const repairCode = async (leaf: Leaf) => extractCodeFromOutput(await think(repairCodeTemplate(leaf))) ?? '';
 
 /** 0-10, judged from what the eyes saw; null if the reply has no number in it. */
 export const eveluateImage = async (leaf: Leaf) => {
