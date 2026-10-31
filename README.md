@@ -19,8 +19,10 @@ leaves the local network. A sketch that fails gets one repair: the writer is sho
 what went wrong, and its fix is vetted from scratch. One that still fails is kept in the tree with the reasons, and
 isn't grown further.
 
-The eyes lead with how bright the frame is and how much of it is empty. Told only to describe, they made
-near-black frames sound like rich constellations, and the writer scored and kept building on them.
+The eyes lead with how clearly the shapes stand out, then how bright the frame is and how much of it is empty. Told
+only to describe, they made near-black frames sound like rich constellations, and the writer scored and kept building
+on them. The writer scores what the eyes saw against a description of each part of the scale, from "blank" up to
+"you'd hang it on a wall".
 
 ## Running it
 
