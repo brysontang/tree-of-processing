@@ -1,4 +1,6 @@
+import fs from 'node:fs';
 import path from 'node:path';
+import { PNG } from 'pngjs';
 
 import { vet } from '../tools/vet.mjs';
 import { Leaf } from '../entities/leaf';
@@ -8,6 +10,21 @@ import { generateAndExtractP5Code, look, repairCode } from './llm_helpers';
 export const output = { dir: 'output' };
 
 export const imagePath = (leaf: Leaf) => path.join(output.dir, `${leaf.hash}_${leaf.method.replace(/\s/g, '')}.png`);
+
+// Whether two leaves' screenshots look the same: their mean difference per pixel, out of 255, is under 1.5. Of 58
+// parent→child pairs judged by eye, that caught 21 of the 25 that looked identical, and 2 of the 33 that didn't
+// (both near-black). About half the rewrites in a tree can be like this, and their scores differ from their
+// parent's by noise alone.
+export const looksSame = (a: Leaf, b: Leaf) => {
+  if (!fs.existsSync(imagePath(a)) || !fs.existsSync(imagePath(b))) return false;
+  const [one, two] = [a, b].map((leaf) => PNG.sync.read(fs.readFileSync(imagePath(leaf))).data);
+  if (one.length !== two.length) return false;
+  let total = 0;
+  for (let i = 0; i < one.length; i += 4) {
+    total += (Math.abs(one[i] - two[i]) + Math.abs(one[i + 1] - two[i + 1]) + Math.abs(one[i + 2] - two[i + 2])) / 3;
+  }
+  return total / (one.length / 4) < 1.5;
+};
 
 type Issue = { line: number; reason: string; detail: string };
 

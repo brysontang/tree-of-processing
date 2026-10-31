@@ -74,8 +74,9 @@ export class Tree {
       return;
     }
 
-    // This round's rewrites that passed vetting and were scored
-    const children = await leaf.createChildren();
+    // This round's rewrites that passed vetting and were scored, and changed how the sketch looks. One that looks the
+    // same is kept in the tree but not grown: growing it would only be growing its parent again.
+    const children = (await leaf.createChildren()).filter((child) => !child.same);
     console.log('Created children');
     console.log(leaf.children.length);
 
@@ -98,11 +99,11 @@ export class Tree {
       this.unexplored.push(...children);
     }
 
-    // When every rewrite scored lower, the leaf goes back to the front to be rewritten once more, rather than the tree
-    // only growing from worse sketches. Rewrites carry over the look of the code they're given, so one bad turn (a
-    // near-black reimagining of a clear root) otherwise sets the look of everything after it.
+    // When every rewrite scored lower or looks the same, the leaf goes back to the front to be rewritten once more,
+    // rather than the tree only growing from worse sketches. Rewrites carry over the look of the code they're given,
+    // so one bad turn (a near-black reimagining of a clear root) otherwise sets the look of everything after it.
     if (!leaf.retried && !children.some((child) => child.score >= leaf.score)) {
-      console.log('Every rewrite scored lower, so this one gets rewritten again');
+      console.log('Every rewrite scored lower or looks the same, so this one gets rewritten again');
       leaf.retried = true;
       this.unexplored.unshift(leaf);
     }
@@ -123,6 +124,7 @@ export class Tree {
         ' method: ' +
         node.method +
         (node.retried ? ' (rewritten twice)' : '') +
+        (node.same ? ' (looks the same)' : '') +
         (node.repair ? (node.problems.length ? ' (repair failed)' : ' (repaired)') : '') +
         (node.problems.length ? ' (turned down)' : '')
     );
