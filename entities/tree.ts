@@ -86,17 +86,16 @@ export class Tree {
       return;
     }
 
-    // Only add children to explore list if the depth is less than 4, and only ones that passed vetting
+    // Only add children to explore list if the depth is less than 4, and only ones that passed vetting. Best score
+    // first unless METHOD is BFS: it's the order that uses the judge, and every good tree so far grew that way.
     if (process.env.METHOD === 'BFS') {
       console.log('BFS');
       this.unexplored.push(...children);
-    } else if (process.env.METHOD === 'DFS') {
+    } else {
       console.log('DFS');
       for (let i = 0; i < children.length; i++) {
         this.addLeafToUnexplored(children[i]);
       }
-    } else {
-      this.unexplored.push(...children);
     }
 
     // When every rewrite scored lower or looks the same, the leaf goes back to the front to be rewritten once more,

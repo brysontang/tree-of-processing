@@ -2,7 +2,8 @@
   "type": "module",
   "scripts": {
     "start": "clear && tsx main.ts",
-    "typecheck": "tsc"
+    "typecheck": "tsc",
+    "sheet": "node tools/sheet.mjs"
   },
   "devDependencies": {
     "@types/node": "^20.17.6",
