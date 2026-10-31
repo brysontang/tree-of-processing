@@ -74,7 +74,8 @@ export class Tree {
       return;
     }
 
-    await leaf.createChildren();
+    // This round's rewrites that passed vetting and were scored
+    const children = await leaf.createChildren();
     console.log('Created children');
     console.log(leaf.children.length);
 
@@ -85,7 +86,6 @@ export class Tree {
     }
 
     // Only add children to explore list if the depth is less than 4, and only ones that passed vetting
-    const children = leaf.children.filter(growable);
     if (process.env.METHOD === 'BFS') {
       console.log('BFS');
       this.unexplored.push(...children);
@@ -96,6 +96,15 @@ export class Tree {
       }
     } else {
       this.unexplored.push(...children);
+    }
+
+    // When every rewrite scored lower, the leaf goes back to the front to be rewritten once more, rather than the tree
+    // only growing from worse sketches. Rewrites carry over the look of the code they're given, so one bad turn (a
+    // near-black reimagining of a clear root) otherwise sets the look of everything after it.
+    if (!leaf.retried && !children.some((child) => child.score >= leaf.score)) {
+      console.log('Every rewrite scored lower, so this one gets rewritten again');
+      leaf.retried = true;
+      this.unexplored.unshift(leaf);
     }
   }
 
@@ -113,6 +122,7 @@ export class Tree {
         node.score +
         ' method: ' +
         node.method +
+        (node.retried ? ' (rewritten twice)' : '') +
         (node.repair ? (node.problems.length ? ' (repair failed)' : ' (repaired)') : '') +
         (node.problems.length ? ' (turned down)' : '')
     );

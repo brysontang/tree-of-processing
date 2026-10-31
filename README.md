@@ -3,7 +3,8 @@ Utilizes the idea of tree of thought to generate p5js scripts from a text prompt
 
 A model reads the prompt poetically, then geometrically, and writes a p5.js sketch of it. Each round, a leaf of
 the tree is rewritten three ways (adding a unique idea, refactoring and expanding, adding recursion, or
-reimagining it), and each rewrite is drawn and scored 0-10. Six rounds grow the tree.
+reimagining it), and each rewrite is drawn and scored 0-10. Six rounds grow the tree. When all of a sketch's
+rewrites score lower than it, it gets rewritten once more before the tree moves on.
 
 Two models do the work, both through OpenAI-compatible endpoints:
 

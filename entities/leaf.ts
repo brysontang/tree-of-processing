@@ -5,10 +5,10 @@ import { enhanceImage, eveluateImage } from '../scripts/llm_helpers';
 import { possibleMethods } from '../scripts/util';
 
 // What a leaf keeps besides its code: its hash (so a saved tree still matches its screenshots), the 27B's notes
-// (the root's poetic and geometric descriptions), what the eyes saw it draw, why vetting turned it down, and if a
-// repair got it through, the broken code and what was wrong with it.
+// (the root's poetic and geometric descriptions), what the eyes saw it draw, why vetting turned it down, if a
+// repair got it through, the broken code and what was wrong with it, and whether it was rewritten a second time.
 type Repair = { problems: string[]; code: string };
-type Extra = { hash?: string; notes?: string; seen?: string; problems?: string[]; repair?: Repair };
+type Extra = { hash?: string; notes?: string; seen?: string; problems?: string[]; repair?: Repair; retried?: boolean };
 
 export class Leaf {
   prompt: string;
@@ -24,6 +24,7 @@ export class Leaf {
   seen: string;
   problems: string[];
   repair?: Repair;
+  retried?: boolean;
 
   children: Leaf[] = [];
 
@@ -55,6 +56,7 @@ export class Leaf {
     this.seen = extra.seen ?? '';
     this.problems = extra.problems ?? [];
     if (extra.repair) this.repair = extra.repair;
+    if (extra.retried) this.retried = true;
 
     this.children = children.map((child) => Leaf.from(child));
   }
