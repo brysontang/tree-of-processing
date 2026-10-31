@@ -1,4 +1,5 @@
-// Copied from ../generative_art/tools/vet.mjs, the gallery's vetting; keep the two in step.
+// Copied from ../generative_art/tools/vet.mjs, the gallery's vetting; keep the two in step. One difference: here the
+// dry run serves the p5 script from vendor/ instead of fetching it, so vetting needs no internet.
 // Vets untrusted p5.js code before it can join the gallery. Two passes:
 //
 // 1. Static: parse with acorn and reject anything that touches the network, storage,
@@ -18,12 +19,19 @@
 import { parse } from 'acorn';
 import { simple } from 'acorn-walk';
 import puppeteer from 'puppeteer-core';
+import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const CHROME = process.env.CHROME_PATH || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const MAX_LENGTH = 30000;
+
+// Local copies of the scripts the sandbox loads, by URL. p5-1.11.3.min.js matches cdnjs's published sha512 and npm's
+// p5@1.11.3 lib/p5.min.js byte for byte.
+const COPIES = {
+  'https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.11.3/p5.min.js': 'vendor/p5-1.11.3.min.js',
+};
 
 // Free (undeclared) identifiers. A name the sketch declares itself, like `let history = []`, is its own.
 const GLOBALS = group({
@@ -150,11 +158,21 @@ export async function dryRun(code, { seed = 1, seconds = 6, screenshot } = {}) {
     const harness = pathToFileURL(path.join(ROOT, 'tools/vet-harness.html')).href;
     const local = pathToFileURL(ROOT).href;
     let p5Url = null;
+    let p5Copy = null;
     const blocked = [];
     await page.setRequestInterception(true);
     page.on('request', (req) => {
       const url = req.url();
-      if (url.startsWith(local) || url === p5Url || /^(data|blob):/.test(url)) return req.continue();
+      // The sandbox loads p5 with crossorigin="anonymous", so it needs the CORS header cdnjs sends.
+      if (url === p5Url) {
+        return req.respond({
+          status: 200,
+          contentType: 'application/javascript; charset=utf-8',
+          headers: { 'access-control-allow-origin': '*' },
+          body: p5Copy,
+        });
+      }
+      if (url.startsWith(local) || /^(data|blob):/.test(url)) return req.continue();
       blocked.push(url);
       req.abort();
     });
@@ -172,6 +190,8 @@ export async function dryRun(code, { seed = 1, seconds = 6, screenshot } = {}) {
 
     await page.goto(harness, { waitUntil: 'load' });
     p5Url = await page.evaluate(() => Sandbox.P5_URL);
+    if (!COPIES[p5Url]) throw new Error(`No local copy of ${p5Url}: download it to vendor/ and add it to COPIES`);
+    p5Copy = fs.readFileSync(path.join(ROOT, COPIES[p5Url]));
     await page.evaluate((c, s) => run(c, s), code, seed);
     // Look at the canvas every 250 ms through the last 1.25 s, so "blank" means nothing showed in that time, not
     // that it was empty at the one moment we looked. The window matches the simulated visitor's 1.2 s click

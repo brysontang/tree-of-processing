@@ -14,7 +14,8 @@ Two models do the work, both through OpenAI-compatible endpoints:
 
 Model-written code is untrusted. Every sketch is vetted with the generative art gallery's checks
 (`tools/vet.mjs`, copied from `../generative_art`): a static scan, then a dry run in its sandbox (`js/sandbox.js`)
-with no network, which also takes the screenshot. A sketch that fails gets one repair: the writer is shown exactly
+with no network, which also takes the screenshot. p5.js itself is served from `vendor/`, so nothing in a run
+leaves the local network. A sketch that fails gets one repair: the writer is shown exactly
 what went wrong, and its fix is vetted from scratch. One that still fails is kept in the tree with the reasons, and
 isn't grown further.
 
